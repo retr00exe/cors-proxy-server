@@ -3,7 +3,7 @@ var http = require('http');
 var request = require('request');
 
 var urlRegex = /^https?/;
-var sizeLimit = process.env.SIZE_LIMIT || 512 * 1024;
+var sizeLimit = process.env.SIZE_LIMIT || 1024 * 1024;
 var requestsLimit = process.env.REQ_LIMIT || 15;
 var copyHeaders = ['user-agent', 'content-type'];
 var reqIPs = [];
@@ -84,10 +84,10 @@ http.createServer(function (req, res) {
   var size = 0;
   var time = new Date();
 
-  if (limitRequests(req, time.getTime()) === true) {
-    limitRequestsBanner(res);
-    return;
-  }
+  // if (limitRequests(req, time.getTime()) === true) {
+  //   limitRequestsBanner(res);
+  //   return;
+  // }
 
   res.setTimeout(25000);
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -103,7 +103,7 @@ http.createServer(function (req, res) {
 
   var client = request(options, function(error, response, body) {
     if (!error) {
-      res.setHeader('Content-type', response.headers['content-type'] || 'text/plain');
+      res.setHeader('Content-type', response.headers['content-type'] || 'application/json');
       res.setHeader('Date', response.headers['date'] || time.toString());
       res.writeHead(Number(response.statusCode));
       res.write(body);
@@ -114,12 +114,12 @@ http.createServer(function (req, res) {
     }
   });
 
-  client.on('data', function(chunk) {
-    size += chunk.length;
-     if (size >= sizeLimit) {
-       limitExceed(res);
-       client.abort();
-     }
-  });
+  // client.on('data', function(chunk) {
+  //   size += chunk.length;
+  //    if (size >= sizeLimit) {
+  //      limitExceed(res);
+  //      client.abort();
+  //    }
+  // });
 
 }).listen(process.env.PORT)
